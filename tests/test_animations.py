@@ -124,11 +124,11 @@ class TestGlitchEffect(unittest.TestCase):
 
     def test_set_normal_state(self):
         """Test setting normal state."""
-        glitch = GlitchEffect(glitch_texts=["ERR"], glitch_colors=["#f00"])
-        glitch.set_normal_state("NORMAL", "#0f0")
+        glitch = GlitchEffect(glitch_texts=["ERR"], glitch_colors=["#ff0000"])
+        glitch.set_normal_state("NORMAL", "#00ff00")
 
         self.assertEqual(glitch.normal_text, "NORMAL")
-        self.assertEqual(glitch.normal_color, "#0f0")
+        self.assertEqual(glitch.normal_color, "#00ff00")
 
     def test_glitch_output_structure(self):
         """Test glitch output has correct structure."""
@@ -254,7 +254,7 @@ class TestAnimationManager(unittest.TestCase):
 
     def test_register_animation(self):
         """Test registering animations."""
-        anim = ColorGradient("#000", "#fff", duration_frames=10)
+        anim = ColorGradient("#000000", "#ffffff", duration_frames=10)
 
         self.manager.register("test", anim)
 
@@ -263,7 +263,7 @@ class TestAnimationManager(unittest.TestCase):
 
     def test_unregister_animation(self):
         """Test unregistering animations."""
-        anim = ColorGradient("#000", "#fff", duration_frames=10)
+        anim = ColorGradient("#000000", "#ffffff", duration_frames=10)
 
         self.manager.register("test", anim)
         self.manager.unregister("test")
@@ -272,7 +272,7 @@ class TestAnimationManager(unittest.TestCase):
 
     def test_get_animation(self):
         """Test retrieving registered animation."""
-        anim = ColorGradient("#000", "#fff", duration_frames=10)
+        anim = ColorGradient("#000000", "#ffffff", duration_frames=10)
 
         self.manager.register("test", anim)
         retrieved = self.manager.get("test")
@@ -281,7 +281,7 @@ class TestAnimationManager(unittest.TestCase):
 
     def test_start_animation(self):
         """Test starting animation."""
-        anim = ColorGradient("#000", "#fff", duration_frames=10)
+        anim = ColorGradient("#000000", "#ffffff", duration_frames=10)
 
         self.manager.register("test", anim)
         self.manager.start("test")
@@ -290,7 +290,7 @@ class TestAnimationManager(unittest.TestCase):
 
     def test_stop_animation(self):
         """Test stopping animation."""
-        anim = ColorGradient("#000", "#fff", duration_frames=10)
+        anim = ColorGradient("#000000", "#ffffff", duration_frames=10)
 
         self.manager.register("test", anim)
         self.manager.start("test")
@@ -300,7 +300,7 @@ class TestAnimationManager(unittest.TestCase):
 
     def test_update_all(self):
         """Test updating all animations."""
-        anim1 = ColorGradient("#000", "#fff", duration_frames=5)
+        anim1 = ColorGradient("#000000", "#ffffff", duration_frames=5)
         anim2 = PulsingEffect(loop=True)
 
         self.manager.register("grad", anim1)
