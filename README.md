@@ -1,13 +1,18 @@
+<p align="center">
+  <img src="assets/header.png" alt="DedSecOS" width="100%"/>
+</p>
+
 # DedSecOS
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![CI](https://github.com/canonrebel04/dedsec-os/actions/workflows/ci.yml/badge.svg)](https://github.com/canonrebel04/dedsec-os/actions/workflows/ci.yml)
 
 > A cyberpunk-themed security toolkit UI for Raspberry Pi with PiTFT touchscreen
 
 <p align="center">
-  <img src="docs/assets/dedsec-logo.png" alt="DedSecOS Logo" width="200"/>
+  <img src="assets/icon.png" alt="DedSecOS Icon" width="150"/>
 </p>
 
 ## ✨ Features
