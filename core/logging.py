@@ -55,6 +55,8 @@ from typing import Optional, Dict, Any, Callable
 from pathlib import Path
 from datetime import datetime
 from contextlib import contextmanager
+import tempfile
+import os
 
 # Import config for paths and debug flags
 try:
@@ -64,14 +66,71 @@ try:
 except ImportError:
     DEBUG_MODE = False
 
-# Constants - Use relative path from project root or temp directory
-# Detect project root (where this file's parent's parent is)
-_PROJECT_ROOT = Path(__file__).parent.parent
-LOG_DIR = _PROJECT_ROOT / "logs"
-LOG_FILE = LOG_DIR / "dedsec.log"
-AUDIT_LOG_FILE = LOG_DIR / "audit.log"
-PERFORMANCE_LOG_FILE = LOG_DIR / "performance.log"
-ERROR_LOG_FILE = LOG_DIR / "errors.log"
+
+# Lazy log directory resolution
+_log_dir_cache: Optional[Path] = None
+
+
+def get_log_dir() -> Path:
+    """
+    Resolve a writable log directory (lazy, cached).
+
+    Priority:
+    1. DEDSEC_LOG_DIR env var (if set)
+    2. Project root / logs (if writable)
+    3. tempfile.gettempdir() / dedsec_logs (fallback)
+
+    Returns:
+        Path to writable log directory
+    """
+    global _log_dir_cache
+    if _log_dir_cache is not None:
+        return _log_dir_cache
+
+    # Check environment variable first
+    env_dir = os.environ.get("DEDSEC_LOG_DIR")
+    if env_dir:
+        candidate = Path(env_dir)
+        try:
+            candidate.mkdir(parents=True, exist_ok=True)
+            _log_dir_cache = candidate
+            return _log_dir_cache
+        except (PermissionError, OSError):
+            pass
+
+    # Try project-relative path
+    project_root = Path(__file__).parent.parent
+    candidate = project_root / "logs"
+    try:
+        candidate.mkdir(parents=True, exist_ok=True)
+        _log_dir_cache = candidate
+        return _log_dir_cache
+    except (PermissionError, OSError):
+        pass
+
+    # Fall back to temp directory
+    candidate = Path(tempfile.gettempdir()) / "dedsec_logs"
+    candidate.mkdir(parents=True, exist_ok=True)
+    _log_dir_cache = candidate
+    return _log_dir_cache
+
+
+# Log file paths - resolved lazily via properties
+def _get_log_file() -> Path:
+    return get_log_dir() / "dedsec.log"
+
+
+def _get_audit_log_file() -> Path:
+    return get_log_dir() / "audit.log"
+
+
+def _get_performance_log_file() -> Path:
+    return get_log_dir() / "performance.log"
+
+
+def _get_error_log_file() -> Path:
+    return get_log_dir() / "errors.log"
+
 
 MAX_LOG_SIZE = 10 * 1024 * 1024  # 10 MB
 BACKUP_COUNT = 5  # Keep 5 backup files
@@ -185,20 +244,12 @@ def setup_logging(
     Example:
         setup_logging(log_level=logging.DEBUG, enable_console=True)
     """
-    # Create log directory if it doesn't exist
-    try:
-        LOG_DIR.mkdir(parents=True, exist_ok=True)
-    except (PermissionError, OSError):
-        # Fall back to temp directory if we can't write to project root
-        import tempfile
-
-        global LOG_DIR, LOG_FILE, AUDIT_LOG_FILE, PERFORMANCE_LOG_FILE, ERROR_LOG_FILE
-        LOG_DIR = Path(tempfile.gettempdir()) / "dedsec_logs"
-        LOG_DIR.mkdir(parents=True, exist_ok=True)
-        LOG_FILE = LOG_DIR / "dedsec.log"
-        AUDIT_LOG_FILE = LOG_DIR / "audit.log"
-        PERFORMANCE_LOG_FILE = LOG_DIR / "performance.log"
-        ERROR_LOG_FILE = LOG_DIR / "errors.log"
+    # Get log directory (handles creation and fallback)
+    log_dir = get_log_dir()
+    log_file = log_dir / "dedsec.log"
+    audit_log_file = log_dir / "audit.log"
+    performance_log_file = log_dir / "performance.log"
+    error_log_file = log_dir / "errors.log"
 
     # Get root logger
     root_logger = logging.getLogger()
@@ -210,7 +261,7 @@ def setup_logging(
     # File handler with rotation
     if enable_file:
         file_handler = logging.handlers.RotatingFileHandler(
-            LOG_FILE, maxBytes=MAX_LOG_SIZE, backupCount=BACKUP_COUNT, encoding="utf-8"
+            log_file, maxBytes=MAX_LOG_SIZE, backupCount=BACKUP_COUNT, encoding="utf-8"
         )
         file_handler.setLevel(logging.DEBUG)
         file_formatter = logging.Formatter(
@@ -230,7 +281,7 @@ def setup_logging(
     # Audit log handler (separate file for security events)
     if enable_audit:
         audit_handler = logging.handlers.RotatingFileHandler(
-            AUDIT_LOG_FILE, maxBytes=MAX_LOG_SIZE, backupCount=BACKUP_COUNT, encoding="utf-8"
+            audit_log_file, maxBytes=MAX_LOG_SIZE, backupCount=BACKUP_COUNT, encoding="utf-8"
         )
         audit_handler.setLevel(logging.INFO)
         audit_handler.setFormatter(AuditFormatter())
@@ -243,7 +294,7 @@ def setup_logging(
     # Performance log handler
     if enable_performance:
         perf_handler = logging.handlers.RotatingFileHandler(
-            PERFORMANCE_LOG_FILE, maxBytes=MAX_LOG_SIZE, backupCount=BACKUP_COUNT, encoding="utf-8"
+            performance_log_file, maxBytes=MAX_LOG_SIZE, backupCount=BACKUP_COUNT, encoding="utf-8"
         )
         perf_handler.setLevel(logging.DEBUG)
         perf_handler.setFormatter(PerformanceFormatter())
@@ -255,7 +306,7 @@ def setup_logging(
 
     # Error log handler (separate file for errors only)
     error_handler = logging.handlers.RotatingFileHandler(
-        ERROR_LOG_FILE, maxBytes=MAX_LOG_SIZE, backupCount=BACKUP_COUNT, encoding="utf-8"
+        error_log_file, maxBytes=MAX_LOG_SIZE, backupCount=BACKUP_COUNT, encoding="utf-8"
     )
     error_handler.setLevel(logging.ERROR)
     error_formatter = logging.Formatter(
@@ -526,5 +577,6 @@ class PerformanceMonitor:
 performance_monitor = PerformanceMonitor()
 
 
-# Initialize logging on module import
-setup_logging()
+# NOTE: setup_logging() is NOT called at import time.
+# Call it explicitly in your application's main entry point.
+# This allows tests and CI to run without filesystem side effects.
