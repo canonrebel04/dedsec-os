@@ -46,8 +46,10 @@ logger = logging.getLogger(__name__)
 # ENUMS
 # ============================================================================
 
+
 class ThemeType(Enum):
     """Available theme presets."""
+
     NEON_GREEN = "neon_green"
     SYNTHWAVE = "synthwave"
     MONOCHROME = "monochrome"
@@ -59,35 +61,36 @@ class ThemeType(Enum):
 # COLOR UTILITIES
 # ============================================================================
 
+
 def hex_to_rgb(hex_color: str) -> Tuple[int, int, int]:
     """Convert hex color to RGB tuple.
-    
+
     Args:
         hex_color: Color in hex format '#RRGGBB'
-        
+
     Returns:
         Tuple of (R, G, B) values 0-255
-        
+
     Example:
         >>> hex_to_rgb("#FF0000")
         (255, 0, 0)
     """
-    hex_color = hex_color.lstrip('#')
-    rgb = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+    hex_color = hex_color.lstrip("#")
+    rgb = tuple(int(hex_color[i : i + 2], 16) for i in (0, 2, 4))
     return (rgb[0], rgb[1], rgb[2])
 
 
 def rgb_to_hex(r: int, g: int, b: int) -> str:
     """Convert RGB values to hex color.
-    
+
     Args:
         r: Red value 0-255
         g: Green value 0-255
         b: Blue value 0-255
-        
+
     Returns:
         Color in hex format '#RRGGBB'
-        
+
     Example:
         >>> rgb_to_hex(255, 0, 0)
         '#FF0000'
@@ -97,26 +100,26 @@ def rgb_to_hex(r: int, g: int, b: int) -> str:
 
 def interpolate_color(color1: str, color2: str, factor: float) -> str:
     """Interpolate between two colors.
-    
+
     Args:
         color1: Starting color (hex)
         color2: Ending color (hex)
         factor: Interpolation factor 0.0-1.0
-        
+
     Returns:
         Interpolated color (hex)
-        
+
     Example:
         >>> interpolate_color("#FF0000", "#0000FF", 0.5)
         '#7F007F'  # Purple (halfway between red and blue)
     """
     r1, g1, b1 = hex_to_rgb(color1)
     r2, g2, b2 = hex_to_rgb(color2)
-    
+
     r = int(r1 + (r2 - r1) * factor)
     g = int(g1 + (g2 - g1) * factor)
     b = int(b1 + (b2 - b1) * factor)
-    
+
     return rgb_to_hex(r, g, b)
 
 
@@ -124,10 +127,11 @@ def interpolate_color(color1: str, color2: str, factor: float) -> str:
 # THEME DEFINITIONS
 # ============================================================================
 
+
 @dataclass
 class Theme:
     """Theme definition with all colors.
-    
+
     Attributes:
         name: Theme identifier
         label: Human-readable theme name
@@ -162,7 +166,7 @@ class Theme:
         panel_bg: Panel background
         panel_border: Panel border
     """
-    
+
     name: str
     label: str
     background: str
@@ -195,29 +199,29 @@ class Theme:
     progress_fill: str
     panel_bg: str
     panel_border: str
-    
+
     def get_color(self, key: str) -> Optional[str]:
         """Get color by name.
-        
+
         Args:
             key: Color attribute name
-            
+
         Returns:
             Hex color or None if not found
         """
         return getattr(self, key, None)
-    
+
     def to_dict(self) -> Dict[str, str]:
         """Convert theme to dictionary.
-        
+
         Returns:
             Dictionary of all colors
         """
         colors = {}
         for key in dir(self):
-            if not key.startswith('_'):
+            if not key.startswith("_"):
                 value = getattr(self, key)
-                if isinstance(value, str) and value.startswith('#'):
+                if isinstance(value, str) and value.startswith("#"):
                     colors[key] = value
         return colors
 
@@ -226,9 +230,10 @@ class Theme:
 # THEME PRESETS
 # ============================================================================
 
+
 def get_theme_neon_green() -> Theme:
     """Neon Green theme - classic hacker aesthetic.
-    
+
     Colors:
         - Lime green on pure black
         - High contrast
@@ -272,7 +277,7 @@ def get_theme_neon_green() -> Theme:
 
 def get_theme_synthwave() -> Theme:
     """Synthwave theme - retrowave pink/blue/purple.
-    
+
     Colors:
         - Vibrant pinks and cyans
         - Cyberpunk aesthetic
@@ -316,7 +321,7 @@ def get_theme_synthwave() -> Theme:
 
 def get_theme_monochrome() -> Theme:
     """Monochrome theme - greyscale for accessibility.
-    
+
     Colors:
         - Pure black and white
         - High contrast
@@ -360,7 +365,7 @@ def get_theme_monochrome() -> Theme:
 
 def get_theme_acid_trip() -> Theme:
     """Acid Trip theme - psychedelic rainbow cycling.
-    
+
     Colors:
         - Rainbow spectrum
         - Vibrant and energetic
@@ -404,7 +409,7 @@ def get_theme_acid_trip() -> Theme:
 
 def get_theme_stealth_mode() -> Theme:
     """Stealth Mode theme - minimal dark theme.
-    
+
     Colors:
         - Dark greys and blacks
         - Minimal contrast
@@ -450,16 +455,17 @@ def get_theme_stealth_mode() -> Theme:
 # THEME MANAGER
 # ============================================================================
 
+
 class ThemeManager:
     """Manages themes and provides color lookups.
-    
+
     Features:
         - Switch between themes at runtime
         - Get colors by name
         - Color interpolation
         - Custom theme support
         - Subscribe to theme changes
-        
+
     Example:
         >>> tm = ThemeManager()
         >>> tm.set_theme("neon_green")
@@ -468,10 +474,10 @@ class ThemeManager:
         >>> tm.set_theme("synthwave")  # Triggers subscriber
         Theme changed to Synthwave
     """
-    
+
     def __init__(self, default_theme: str = "neon_green"):
         """Initialize theme manager.
-        
+
         Args:
             default_theme: Default theme to use
         """
@@ -482,24 +488,21 @@ class ThemeManager:
             "acid_trip": get_theme_acid_trip(),
             "stealth_mode": get_theme_stealth_mode(),
         }
-        
-        self.current_theme: Theme = self.themes.get(
-            default_theme,
-            self.themes["neon_green"]
-        )
-        
+
+        self.current_theme: Theme = self.themes.get(default_theme, self.themes["neon_green"])
+
         self._subscribers: List[Callable[[Theme], None]] = []
         logger.info(f"ThemeManager initialized with theme: {self.current_theme.label}")
-    
+
     def set_theme(self, theme_name: str) -> bool:
         """Switch to a theme.
-        
+
         Args:
             theme_name: Theme identifier
-            
+
         Returns:
             True if theme was changed, False if not found
-            
+
         Example:
             >>> tm = ThemeManager()
             >>> tm.set_theme("synthwave")
@@ -510,36 +513,36 @@ class ThemeManager:
         if theme_name not in self.themes:
             logger.warning(f"Theme not found: {theme_name}")
             return False
-        
+
         old_theme = self.current_theme
         self.current_theme = self.themes[theme_name]
-        
+
         logger.info(f"Theme changed: {old_theme.name} → {theme_name}")
         self._notify_subscribers()
         return True
-    
+
     def get_theme(self, theme_name: Optional[str] = None) -> Optional[Theme]:
         """Get a theme by name.
-        
+
         Args:
             theme_name: Theme identifier (uses current if None)
-            
+
         Returns:
             Theme instance or None if not found
         """
         if theme_name is None:
             return self.current_theme
         return self.themes.get(theme_name)
-    
+
     def get_color(self, key: str) -> str:
         """Get color from current theme.
-        
+
         Args:
             key: Color attribute name
-            
+
         Returns:
             Hex color string
-            
+
         Example:
             >>> tm = ThemeManager()
             >>> tm.get_color("text")
@@ -552,13 +555,13 @@ class ThemeManager:
             logger.warning(f"Color not found: {key}")
             return "#000000"  # Fallback
         return color
-    
+
     def get_all_colors(self) -> Dict[str, str]:
         """Get all colors from current theme.
-        
+
         Returns:
             Dictionary of color name → hex value
-            
+
         Example:
             >>> tm = ThemeManager()
             >>> colors = tm.get_all_colors()
@@ -566,21 +569,21 @@ class ThemeManager:
             '#00FF00'
         """
         return self.current_theme.to_dict()
-    
+
     def get_available_themes(self) -> List[str]:
         """Get list of available theme names.
-        
+
         Returns:
             List of theme identifiers
         """
         return list(self.themes.keys())
-    
+
     def get_theme_labels(self) -> Dict[str, str]:
         """Get mapping of theme name to label.
-        
+
         Returns:
             Dictionary of name → human-readable label
-            
+
         Example:
             >>> tm = ThemeManager()
             >>> labels = tm.get_theme_labels()
@@ -588,13 +591,13 @@ class ThemeManager:
             'Neon Green'
         """
         return {name: theme.label for name, theme in self.themes.items()}
-    
+
     def register_theme(self, theme: Theme) -> None:
         """Register a custom theme.
-        
+
         Args:
             theme: Theme instance to register
-            
+
         Example:
             >>> custom = Theme("custom", "Custom Theme", ...)
             >>> tm = ThemeManager()
@@ -604,39 +607,39 @@ class ThemeManager:
         """
         self.themes[theme.name] = theme
         logger.info(f"Custom theme registered: {theme.name}")
-    
+
     def interpolate(self, key: str, factor: float) -> str:
         """Interpolate color between two themes.
-        
+
         Interpolates between current theme and next theme by factor.
-        
+
         Args:
             key: Color attribute name
             factor: Interpolation 0.0-1.0 (0=current, 1=next)
-            
+
         Returns:
             Interpolated hex color
         """
         color1 = self.get_color(key)
         themes = list(self.themes.values())
-        
+
         # Find next theme (for cycling)
         current_index = themes.index(self.current_theme)
         next_index = (current_index + 1) % len(themes)
         next_theme = themes[next_index]
-        
+
         color2 = next_theme.get_color(key)
         if color2 is None:
             color2 = color1
-        
+
         return interpolate_color(color1, color2, factor)
-    
+
     def subscribe(self, callback: Callable[[Theme], None]) -> None:
         """Subscribe to theme changes.
-        
+
         Args:
             callback: Function to call with new theme when changed
-            
+
         Example:
             >>> tm = ThemeManager()
             >>> tm.subscribe(lambda t: print(f"New theme: {t.label}"))
@@ -644,7 +647,7 @@ class ThemeManager:
             New theme: Synthwave
         """
         self._subscribers.append(callback)
-    
+
     def _notify_subscribers(self) -> None:
         """Internal: Notify all subscribers of theme change."""
         for callback in self._subscribers:
