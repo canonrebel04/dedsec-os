@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  # Use workspace-relative logs directory to avoid permission errors
+  DEDSEC_LOG_DIR: ${{ github.workspace }}/logs
+
 jobs:
   test:
     name: Test Python ${{ matrix.python-version }}
