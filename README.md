@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/header.png" alt="DedSecOS" width="100%"/>
+  <img src="https://raw.githubusercontent.com/canonrebel04/dedsec-os/main/assets/header.png" alt="DedSecOS" width="100%"/>
 </p>
 
 # DedSecOS
@@ -12,7 +12,7 @@
 > A cyberpunk-themed security toolkit UI for Raspberry Pi with PiTFT touchscreen
 
 <p align="center">
-  <img src="assets/icon.png" alt="DedSecOS Icon" width="150"/>
+  <img src="https://raw.githubusercontent.com/canonrebel04/dedsec-os/main/assets/icon.png" alt="DedSecOS Icon" width="150"/>
 </p>
 
 ## ✨ Features
