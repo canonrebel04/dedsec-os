@@ -125,12 +125,18 @@ def setup_logging():
     - Path validation: Uses get_safe_path() to prevent log file manipulation
     - Thread-safe: Logging module is thread-safe by design
     """
-    # Ensure log directory exists
-    log_dir = "/home/berry/dedsec/logs"
+    # Ensure log directory exists - use relative path or temp directory
+    import tempfile
+
+    # Try project-relative logs first, fall back to temp
+    project_root = os.path.dirname(os.path.abspath(__file__))
+    log_dir = os.path.join(project_root, "logs")
     try:
         os.makedirs(log_dir, exist_ok=True)
-    except OSError:
-        pass
+    except (OSError, PermissionError):
+        # Fall back to temp directory
+        log_dir = os.path.join(tempfile.gettempdir(), "dedsec_logs")
+        os.makedirs(log_dir, exist_ok=True)
 
     # Configure main application logger (2.4.1)
     app_logger = logging.getLogger("dedsec")

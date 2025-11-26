@@ -64,8 +64,10 @@ try:
 except ImportError:
     DEBUG_MODE = False
 
-# Constants
-LOG_DIR = Path("/home/cachy/dedsec/logs")
+# Constants - Use relative path from project root or temp directory
+# Detect project root (where this file's parent's parent is)
+_PROJECT_ROOT = Path(__file__).parent.parent
+LOG_DIR = _PROJECT_ROOT / "logs"
 LOG_FILE = LOG_DIR / "dedsec.log"
 AUDIT_LOG_FILE = LOG_DIR / "audit.log"
 PERFORMANCE_LOG_FILE = LOG_DIR / "performance.log"
@@ -184,7 +186,19 @@ def setup_logging(
         setup_logging(log_level=logging.DEBUG, enable_console=True)
     """
     # Create log directory if it doesn't exist
-    LOG_DIR.mkdir(parents=True, exist_ok=True)
+    try:
+        LOG_DIR.mkdir(parents=True, exist_ok=True)
+    except (PermissionError, OSError):
+        # Fall back to temp directory if we can't write to project root
+        import tempfile
+
+        global LOG_DIR, LOG_FILE, AUDIT_LOG_FILE, PERFORMANCE_LOG_FILE, ERROR_LOG_FILE
+        LOG_DIR = Path(tempfile.gettempdir()) / "dedsec_logs"
+        LOG_DIR.mkdir(parents=True, exist_ok=True)
+        LOG_FILE = LOG_DIR / "dedsec.log"
+        AUDIT_LOG_FILE = LOG_DIR / "audit.log"
+        PERFORMANCE_LOG_FILE = LOG_DIR / "performance.log"
+        ERROR_LOG_FILE = LOG_DIR / "errors.log"
 
     # Get root logger
     root_logger = logging.getLogger()
