@@ -29,11 +29,10 @@ Example:
     }
 """
 
+import logging
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, Callable, List, Optional, Tuple
-import logging
-
+from typing import Callable, Optional
 
 # ============================================================================
 # LOGGING SETUP
@@ -62,7 +61,7 @@ class ThemeType(Enum):
 # ============================================================================
 
 
-def hex_to_rgb(hex_color: str) -> Tuple[int, int, int]:
+def hex_to_rgb(hex_color: str) -> tuple[int, int, int]:
     """Convert hex color to RGB tuple.
 
     Args:
@@ -211,7 +210,7 @@ class Theme:
         """
         return getattr(self, key, None)
 
-    def to_dict(self) -> Dict[str, str]:
+    def to_dict(self) -> dict[str, str]:
         """Convert theme to dictionary.
 
         Returns:
@@ -481,7 +480,7 @@ class ThemeManager:
         Args:
             default_theme: Default theme to use
         """
-        self.themes: Dict[str, Theme] = {
+        self.themes: dict[str, Theme] = {
             "neon_green": get_theme_neon_green(),
             "synthwave": get_theme_synthwave(),
             "monochrome": get_theme_monochrome(),
@@ -491,7 +490,7 @@ class ThemeManager:
 
         self.current_theme: Theme = self.themes.get(default_theme, self.themes["neon_green"])
 
-        self._subscribers: List[Callable[[Theme], None]] = []
+        self._subscribers: list[Callable[[Theme], None]] = []
         logger.info(f"ThemeManager initialized with theme: {self.current_theme.label}")
 
     def set_theme(self, theme_name: str) -> bool:
@@ -556,7 +555,7 @@ class ThemeManager:
             return "#000000"  # Fallback
         return color
 
-    def get_all_colors(self) -> Dict[str, str]:
+    def get_all_colors(self) -> dict[str, str]:
         """Get all colors from current theme.
 
         Returns:
@@ -570,7 +569,7 @@ class ThemeManager:
         """
         return self.current_theme.to_dict()
 
-    def get_available_themes(self) -> List[str]:
+    def get_available_themes(self) -> list[str]:
         """Get list of available theme names.
 
         Returns:
@@ -578,7 +577,7 @@ class ThemeManager:
         """
         return list(self.themes.keys())
 
-    def get_theme_labels(self) -> Dict[str, str]:
+    def get_theme_labels(self) -> dict[str, str]:
         """Get mapping of theme name to label.
 
         Returns:

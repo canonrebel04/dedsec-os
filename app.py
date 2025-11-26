@@ -1,18 +1,17 @@
-import tkinter as tk
-from tkinter import font
-from typing import Tuple, Optional, List, Dict, Any
-import time
+import logging
 import os
-import subprocess
-import threading
-from concurrent.futures import ThreadPoolExecutor
-import psutil
 import random
-import sys
 import re
 import resource
-import logging
+import subprocess
+import sys
+import threading
+import time
+import tkinter as tk
+from concurrent.futures import ThreadPoolExecutor
 from logging.handlers import RotatingFileHandler
+
+import psutil
 from PIL import Image, ImageTk
 
 # --- CONFIGURATION ---
@@ -184,7 +183,7 @@ def setup_logging():
 # Initialize loggers at module load time (2.4.1)
 try:
     app_logger, audit_logger = setup_logging()
-except Exception as e:
+except Exception:
     # Fallback if logging setup fails
     import logging
 
@@ -227,7 +226,7 @@ def log_error(msg, level="INFO"):
             app_logger.critical(msg)
         else:
             app_logger.info(msg)
-    except Exception as e:
+    except Exception:
         # Fallback: write to stderr if logging fails
         print(f"[LOG_ERROR] {msg}", file=sys.stderr)
 
@@ -611,7 +610,7 @@ ALLOWED_COMMANDS = {
 }
 
 
-def execute_safe_command(cmd_name: str, *args: str, timeout: int = 30) -> Tuple[str, str, int]:
+def execute_safe_command(cmd_name: str, *args: str, timeout: int = 30) -> tuple[str, str, int]:
     """
     Execute only whitelisted commands with validated arguments (2.3.1).
 
@@ -722,8 +721,7 @@ def execute_safe_command(cmd_name: str, *args: str, timeout: int = 30) -> Tuple[
         # Execute with strict resource limits (2.3.2)
         proc = subprocess.run(
             final_cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
             text=True,
             timeout=timeout,
             check=False,  # Don't raise on non-zero exit
@@ -785,15 +783,14 @@ def run_limited_subprocess(cmd, timeout=30, max_memory_mb=256):
             # Convert MB to bytes
             limit_bytes = max_memory_mb * 1024 * 1024
             resource.setrlimit(resource.RLIMIT_AS, (limit_bytes, limit_bytes))
-        except:
+        except Exception:
             pass  # Ignore if resource limits not available
 
     try:
         # Note: preexec_fn only works on Unix/Linux (not Windows)
         proc = subprocess.run(
             cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
             text=True,
             timeout=timeout,
             preexec_fn=limit_memory,
@@ -814,7 +811,7 @@ def run_limited_subprocess(cmd, timeout=30, max_memory_mb=256):
         )
         return ("", f"Subprocess timeout ({timeout}s)", 124)
     except MemoryError:
-        log_error(f"[SEC] Subprocess memory limit exceeded (2.3.2)", level="ERROR")
+        log_error("[SEC] Subprocess memory limit exceeded (2.3.2)", level="ERROR")
         audit_log(
             "COMMAND",
             {
@@ -917,7 +914,7 @@ class ButtonState:
             prev_btn = self.selected_buttons[group_name]
             try:
                 prev_btn.config(bg=self.color_normal, relief="flat")
-            except:
+            except Exception:
                 pass  # Button may have been destroyed
 
         # Select new button
@@ -932,7 +929,7 @@ class ButtonState:
         for btn in self.selected_buttons.values():
             try:
                 btn.config(bg=self.color_normal, relief="flat", fg="#ccff00")
-            except:
+            except Exception:
                 pass
         self.selected_buttons.clear()
 
@@ -1030,7 +1027,7 @@ class ProcessManager:
                     proc.terminate()
                     try:
                         proc.wait(timeout=2)
-                    except:
+                    except Exception:
                         proc.kill()
             self.active_processes.clear()
 
@@ -1537,7 +1534,7 @@ class ARPSpoofer:
                 return False
 
             spoof_info = self.active_spoofs[target_ip]
-            thread = spoof_info["thread"]
+            spoof_info["thread"]
 
             # Kill the arpspoof process (via SIGTERM on thread)
             # Note: arpspoof must be killed via process manager
@@ -1943,7 +1940,7 @@ class DedSecOS:
             if cached_pil is not None:
                 self.bg_image = ImageTk.PhotoImage(cached_pil)
                 self.canvas.create_image(0, 0, image=self.bg_image, anchor="nw", tags="bg")
-                log_error(f"[BACKGROUND] Loaded from memory cache")
+                log_error("[BACKGROUND] Loaded from memory cache")
                 return
 
             # Check for disk cache
@@ -1980,7 +1977,7 @@ class DedSecOS:
                 log_error(f"[BACKGROUND] Loaded from original: {img_path}")
             else:
                 self.draw_grid_bg()
-                log_error(f"[BACKGROUND] No background image found, using grid")
+                log_error("[BACKGROUND] No background image found, using grid")
         except Exception as e:
             log_error(f"[BACKGROUND] Load Error: {e}")
             self.draw_grid_bg()
@@ -2211,7 +2208,7 @@ class DedSecOS:
         for item_id in self.terminal_pool_items:
             try:
                 self.canvas.delete(item_id)
-            except:
+            except Exception:
                 pass
         self.terminal_pool_items.clear()
 
@@ -2228,7 +2225,7 @@ class DedSecOS:
                     text = self.canvas.itemcget(item_id, "text")
                     if text.startswith(">") or self.canvas.itemcget(item_id, "fill") == COLOR_WHITE:
                         self.canvas.delete(item_id)
-                except:
+                except Exception:
                     pass
 
     def draw_terminal(self) -> None:
@@ -2326,7 +2323,7 @@ class DedSecOS:
                                 self.canvas.tag_raise(text_id, "glass")
                             if self.canvas.find_withtag("bg"):
                                 self.canvas.tag_raise(text_id, "bg")
-                        except:
+                        except Exception:
                             pass  # Tags don't exist yet during init
 
                     except Exception as e:
@@ -2908,7 +2905,7 @@ class DedSecOS:
         """Store selected scan target with visual feedback (3.1.2.1)."""
         # Visual press feedback - briefly darken button
         if button_widget:
-            orig_bg = button_widget.cget("bg")
+            button_widget.cget("bg")
             button_widget.config(bg="#555", relief="sunken")
             self.root.after(
                 100,
@@ -2932,7 +2929,7 @@ class DedSecOS:
         """Store selected port range with visual feedback (3.1.2.1)."""
         # Visual press feedback - briefly darken button
         if button_widget:
-            orig_bg = button_widget.cget("bg")
+            button_widget.cget("bg")
             button_widget.config(bg="#555", relief="sunken")
             self.root.after(
                 100,
@@ -2999,9 +2996,9 @@ class DedSecOS:
         except Exception as e:
             error_msg = str(e)
             self.log_line("")  # Blank line for separation
-            self.log_line(f"[ERROR] Scan failed:")
+            self.log_line("[ERROR] Scan failed:")
             self.log_line(error_msg)  # Auto-wrapped if long
-            self.update_status(f"Scan error")
+            self.update_status("Scan error")
             log_error(f"Port scan error: {error_msg}")
 
     def _display_port_results(self, results, target):
@@ -3084,7 +3081,7 @@ class DedSecOS:
 
             if not hosts:
                 self.root.after(0, lambda: self.log_line(f"[ARP] No hosts found on {network}"))
-                self.root.after(0, lambda: self.update_status(f"No hosts found"))
+                self.root.after(0, lambda: self.update_status("No hosts found"))
                 return
 
             # Log results
@@ -3099,7 +3096,7 @@ class DedSecOS:
         except Exception as e:
             error_msg = str(e)
             self.root.after(0, lambda: self.log_line(f"[ARP] Scan error: {error_msg}"))
-            self.root.after(0, lambda: self.update_status(f"Scan error"))
+            self.root.after(0, lambda: self.update_status("Scan error"))
             log_error(f"ARP scan error: {error_msg}")
 
     def _display_arp_targets(self, hosts):
@@ -3159,7 +3156,7 @@ class DedSecOS:
         """Start ARP spoofing against target."""
         gateway = self.arp_spoofer.get_gateway_ip()
         if not gateway:
-            self.log_line(f"[ARP] Gateway not detected - cannot spoof")
+            self.log_line("[ARP] Gateway not detected - cannot spoof")
             self.update_status("Gateway not detected")
             return
 
@@ -3173,7 +3170,7 @@ class DedSecOS:
             self.show_arp_active_modal()
         else:
             self.log_line(f"[ARP] Failed to spoof {target_ip}")
-            self.update_status(f"Spoof failed")
+            self.update_status("Spoof failed")
 
     def _refresh_active_spoofs(self):
         """Refresh the display of active spoofing attacks."""
@@ -3566,11 +3563,10 @@ class DedSecOS:
         self.log_line(f"ATTACKING {self.target_bssid}...")
         try:
             # REAL ATTACK LOGIC
-            cmd = ["sudo", "aireplay-ng", "--deauth", "5", "-a", self.target_bssid, "wlan0mon"]
             # subprocess.Popen(cmd) # Uncomment to enable real attack
             self.log_line("[!] SENDING DEAUTH PACKETS...")
             self.log_line("[!] CLIENTS DISCONNECTED")
-        except:
+        except Exception:
             self.log_line("ATTACK FAILED (NO MON MODE)")
 
     def run_nmap_thread(self):
@@ -3589,7 +3585,7 @@ class DedSecOS:
             if route_result and route_result.stdout:
                 target = f"{route_result.stdout.split()[2]}/24"
             self.log_line(f"TARGET: {target}")
-        except:
+        except Exception:
             self.log_line("USING LOCALHOST")
 
         try:
@@ -3614,7 +3610,7 @@ class DedSecOS:
                 self.log_line("NMAP TIMEOUT OR ERROR")
 
             self.log_line("DONE.")
-        except:
+        except Exception:
             self.log_line("NMAP ERROR")
 
     def sys_reboot(self):
@@ -3678,7 +3674,7 @@ class DedSecOS:
                     self.canvas.itemconfig(
                         self.id_temp_text, fill=COLOR_ALERT if temp > 70 else COLOR_WHITE
                     )
-            except:
+            except Exception:
                 pass
 
             # --- EVENT-DRIVEN NETWORK STATS (1.3.2) ---
@@ -3717,7 +3713,7 @@ class DedSecOS:
                         )
 
                     self.last_net_update_time = now
-        except:
+        except Exception:
             pass
         self.root.after(self.current_intervals["stats"], self.update_system_stats)
 
@@ -3752,7 +3748,7 @@ class DedSecOS:
             elif conn_type == "WIFI":
                 quality = 0
                 try:
-                    with open("/proc/net/wireless", "r") as f:
+                    with open("/proc/net/wireless") as f:
                         lines = f.readlines()
                         for line in lines:
                             if "wlan0" in line:
@@ -3763,7 +3759,7 @@ class DedSecOS:
                                     quality = 100
                                 else:
                                     quality = int((quality / 70) * 100)
-                except:
+                except Exception:
                     quality = 0
                 bar_w = 3
                 gap = 2
@@ -3782,7 +3778,7 @@ class DedSecOS:
             log_error(f"Network Icon Error: {e}")
         self.root.after(self.current_intervals["network"], self.update_network_icon)
 
-    def wrap_text(self, text: str, max_chars: int = 40) -> List[str]:
+    def wrap_text(self, text: str, max_chars: int = 40) -> list[str]:
         """
         Wrap long text into multiple lines with pixel-accurate width.
 

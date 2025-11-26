@@ -130,6 +130,16 @@ exclude = [
 [tool.ruff]
 target-version = "py39"
 line-length = 100
+exclude = [
+    ".git",
+    "__pycache__",
+    "archive",
+    "docs",
+    ".venv",
+    "venv",
+]
+
+[tool.ruff.lint]
 select = [
     "E",      # pycodestyle errors
     "W",      # pycodestyle warnings
@@ -144,18 +154,11 @@ ignore = [
     "B008",   # function calls in argument defaults
     "C901",   # too complex
 ]
-exclude = [
-    ".git",
-    "__pycache__",
-    "archive",
-    "docs",
-    ".venv",
-    "venv",
-]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]  # unused imports in __init__.py are ok
 "tests/*" = ["S101"]       # assert in tests is ok
+"tests/conftest.py" = ["E402"]  # imports after env var setup is intentional
 
 [tool.black]
 line-length = 100

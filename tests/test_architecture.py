@@ -5,9 +5,9 @@ Tests Model, View, Controller base classes and their interaction.
 """
 
 import unittest
-from unittest.mock import MagicMock, patch, call
-from ui.architecture import Model, View, Controller, Observer, Rectangle
+from unittest.mock import MagicMock
 
+from ui.architecture import Controller, Model, Observer, Rectangle, View
 
 # ============================================================================
 # CONCRETE IMPLEMENTATIONS FOR TESTING

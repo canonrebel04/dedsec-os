@@ -44,19 +44,17 @@ Usage:
     audit_log("WIFI_DEAUTH", target="AA:BB:CC:DD:EE:FF", success=True)
 """
 
+import functools
 import logging
 import logging.handlers
 import os
 import sys
-import time
-import traceback
-import functools
-from typing import Optional, Dict, Any, Callable
-from pathlib import Path
-from datetime import datetime
-from contextlib import contextmanager
 import tempfile
-import os
+import time
+from contextlib import contextmanager
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Callable, Optional
 
 # Import config for paths and debug flags
 try:
@@ -337,7 +335,7 @@ def get_logger(name: str) -> logging.Logger:
 def log_error(
     message: str,
     exc_info: bool = False,
-    context: Optional[Dict[str, Any]] = None,
+    context: Optional[dict[str, Any]] = None,
     logger_name: Optional[str] = None,
 ) -> None:
     """
@@ -503,7 +501,7 @@ class PerformanceMonitor:
 
     def __init__(self):
         """Initialize performance monitor."""
-        self.measurements: Dict[str, list] = {}
+        self.measurements: dict[str, list] = {}
         self.logger = get_logger("performance_monitor")
 
     @contextmanager
@@ -534,7 +532,7 @@ class PerformanceMonitor:
             with log_performance(operation, **details):
                 pass
 
-    def get_stats(self, operation: str) -> Dict[str, float]:
+    def get_stats(self, operation: str) -> dict[str, float]:
         """
         Get statistics for an operation.
 

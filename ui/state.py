@@ -28,15 +28,14 @@ Example:
 
 """
 
-from abc import ABC, abstractmethod
-from dataclasses import dataclass, field, asdict
-from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Set
 import json
 import logging
 import os
+from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
 from datetime import datetime
-
+from enum import Enum
+from typing import Any, Callable, Optional
 
 # ============================================================================
 # LOGGING SETUP
@@ -111,17 +110,17 @@ class MenuState:
         'tools'
     """
 
-    stack: List[str] = field(default_factory=lambda: ["main"])
+    stack: list[str] = field(default_factory=lambda: ["main"])
     current_menu: str = "main"
     mode: MenuMode = MenuMode.NORMAL
     selection_index: int = 0
     max_selections: int = 6  # Pi 2 screen shows ~6 items
-    selected_items: Set[str] = field(default_factory=set)
+    selected_items: set[str] = field(default_factory=set)
     timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
 
     # Callbacks for state changes
-    _on_menu_change: List[Callable[["MenuState"], None]] = field(default_factory=list)
-    _on_selection_change: List[Callable[[int], None]] = field(default_factory=list)
+    _on_menu_change: list[Callable[["MenuState"], None]] = field(default_factory=list)
+    _on_selection_change: list[Callable[[int], None]] = field(default_factory=list)
 
     def push(self, menu: str) -> None:
         """Navigate to new menu, adding to stack.
@@ -193,7 +192,7 @@ class MenuState:
         self._notify_menu_change()
         logger.debug("Menu state cleared to root")
 
-    def get_breadcrumb(self) -> List[str]:
+    def get_breadcrumb(self) -> list[str]:
         """Get navigation breadcrumb trail.
 
         Returns:
@@ -293,7 +292,7 @@ class MenuState:
             except Exception as e:
                 logger.error(f"Error in selection change callback: {e}")
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert state to dictionary for serialization.
 
         Returns:
@@ -309,7 +308,7 @@ class MenuState:
         }
 
     @staticmethod
-    def from_dict(data: Dict[str, Any]) -> "MenuState":
+    def from_dict(data: dict[str, Any]) -> "MenuState":
         """Create MenuState from dictionary.
 
         Args:
@@ -372,7 +371,7 @@ class ToolState(ABC):
     status: ToolStatus = ToolStatus.IDLE
     progress: float = 0.0
     error: Optional[str] = None
-    result: Dict[str, Any] = field(default_factory=dict)
+    result: dict[str, Any] = field(default_factory=dict)
     created_at: str = field(default_factory=lambda: datetime.now().isoformat())
     updated_at: str = field(default_factory=lambda: datetime.now().isoformat())
 
@@ -385,7 +384,7 @@ class ToolState(ABC):
         self.updated_at = datetime.now().isoformat()
         logger.debug(f"Tool state reset: {self.tool_id}")
 
-    def set_result(self, result: Dict[str, Any]) -> None:
+    def set_result(self, result: dict[str, Any]) -> None:
         """Update result data with timestamp.
 
         Args:
@@ -427,7 +426,7 @@ class ToolState(ABC):
         self.progress = max(0.0, min(1.0, progress))
         self.updated_at = datetime.now().isoformat()
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serialize tool state to dictionary.
 
         Returns:
@@ -445,7 +444,7 @@ class ToolState(ABC):
 
     @staticmethod
     @abstractmethod
-    def from_dict(data: Dict[str, Any]) -> "ToolState":
+    def from_dict(data: dict[str, Any]) -> "ToolState":
         """Deserialize tool state from dictionary.
 
         Args:
@@ -484,10 +483,10 @@ class StateContainer:
     """
 
     menu: MenuState = field(default_factory=MenuState)
-    tool_states: Dict[str, ToolState] = field(default_factory=dict)
-    settings: Dict[str, Any] = field(default_factory=dict)
-    _change_listeners: List[Callable[[], None]] = field(default_factory=list)
-    _history: List[Dict[str, Any]] = field(default_factory=list)
+    tool_states: dict[str, ToolState] = field(default_factory=dict)
+    settings: dict[str, Any] = field(default_factory=dict)
+    _change_listeners: list[Callable[[], None]] = field(default_factory=list)
+    _history: list[dict[str, Any]] = field(default_factory=list)
     _history_index: int = 0
 
     def register_tool_state(self, tool_id: str, state: ToolState) -> None:
@@ -560,7 +559,7 @@ class StateContainer:
         """
         return len(self._history) > 0
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serialize all state to dictionary.
 
         Returns:
@@ -573,7 +572,7 @@ class StateContainer:
         }
 
     @staticmethod
-    def from_dict(data: Dict[str, Any]) -> "StateContainer":
+    def from_dict(data: dict[str, Any]) -> "StateContainer":
         """Deserialize state from dictionary.
 
         Args:
@@ -639,12 +638,12 @@ class PreferenceManager:
 
         self.preferences_file = preferences_file
         self.auto_save = auto_save
-        self.preferences: Dict[str, Any] = {}
-        self.defaults: Dict[str, Any] = self._get_defaults()
+        self.preferences: dict[str, Any] = {}
+        self.defaults: dict[str, Any] = self._get_defaults()
 
         logger.info(f"PreferenceManager initialized: {preferences_file}")
 
-    def _get_defaults(self) -> Dict[str, Any]:
+    def _get_defaults(self) -> dict[str, Any]:
         """Get default preferences.
 
         Returns:
@@ -670,7 +669,7 @@ class PreferenceManager:
         """
         try:
             if os.path.exists(self.preferences_file):
-                with open(self.preferences_file, "r") as f:
+                with open(self.preferences_file) as f:
                     data = json.load(f)
                     self.preferences = data
                     logger.info(f"Preferences loaded: {len(data)} items")
@@ -746,7 +745,7 @@ class PreferenceManager:
             self.save()
         logger.info("Preferences reset to defaults")
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Get all preferences as dictionary.
 
         Returns:

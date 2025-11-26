@@ -20,10 +20,10 @@ Architecture:
     - Theme-aware colors
 """
 
-import random
 import math
-from typing import Callable, Optional, Tuple, List, Dict, Any
+import random
 from abc import ABC, abstractmethod
+from typing import Any, Callable, Optional
 
 
 class Animator(ABC):
@@ -123,7 +123,7 @@ class ColorGradient(Animator):
         self.start_rgb = self._hex_to_rgb(start_color)
         self.end_rgb = self._hex_to_rgb(end_color)
 
-    def _hex_to_rgb(self, hex_color: str) -> Tuple[int, int, int]:
+    def _hex_to_rgb(self, hex_color: str) -> tuple[int, int, int]:
         """Convert hex color to RGB tuple."""
         hex_color = hex_color.lstrip("#")
         r = int(hex_color[0:2], 16)
@@ -131,7 +131,7 @@ class ColorGradient(Animator):
         b = int(hex_color[4:6], 16)
         return (r, g, b)
 
-    def _rgb_to_hex(self, rgb: Tuple[int, int, int]) -> str:
+    def _rgb_to_hex(self, rgb: tuple[int, int, int]) -> str:
         """Convert RGB tuple to hex color."""
         return f"#{rgb[0]:02x}{rgb[1]:02x}{rgb[2]:02x}"
 
@@ -209,8 +209,8 @@ class GlitchEffect(Animator):
 
     def __init__(
         self,
-        glitch_texts: List[str],
-        glitch_colors: List[str],
+        glitch_texts: list[str],
+        glitch_colors: list[str],
         glitch_chance: float = 0.3,
         duration_frames: int = 60,
         loop: bool = True,
@@ -237,7 +237,7 @@ class GlitchEffect(Animator):
         self.normal_text = text
         self.normal_color = color
 
-    def update(self) -> Dict[str, Any]:
+    def update(self) -> dict[str, Any]:
         """
         Get current glitch state.
 
@@ -314,8 +314,8 @@ class MatrixRain(Animator):
     def __init__(
         self,
         max_chars: int = 8,
-        chars: Optional[List[str]] = None,
-        brightness_levels: Optional[List[str]] = None,
+        chars: Optional[list[str]] = None,
+        brightness_levels: Optional[list[str]] = None,
         duration_frames: int = 150,
         loop: bool = True,
     ):
@@ -338,9 +338,9 @@ class MatrixRain(Animator):
             "#009900",  # Dim
             "#006600",  # Very dim
         ]
-        self.active_chars: List[Dict[str, Any]] = []
+        self.active_chars: list[dict[str, Any]] = []
 
-    def update(self) -> List[Dict[str, Any]]:
+    def update(self) -> list[dict[str, Any]]:
         """
         Update matrix rain state.
 
@@ -393,7 +393,7 @@ class AnimationManager:
 
     def __init__(self):
         """Initialize animation manager."""
-        self.animations: Dict[str, Animator] = {}
+        self.animations: dict[str, Animator] = {}
 
     def register(self, name: str, animator: Animator):
         """
@@ -434,7 +434,7 @@ class AnimationManager:
         for animator in self.animations.values():
             animator.stop()
 
-    def update_all(self) -> Dict[str, Any]:
+    def update_all(self) -> dict[str, Any]:
         """
         Update all running animations.
 

@@ -26,9 +26,7 @@ Example:
     animation_speed = TIMINGS.BUTTON_PRESS_DURATION  # 100 ms
 """
 
-from typing import Dict, Optional
 from dataclasses import dataclass
-
 
 # ============================================================================
 # LAYOUT CONFIGURATION (Optimized for Raspberry Pi 2 - 320×240)
@@ -209,7 +207,7 @@ class ColorConfig:
         if self.theme_manager:
             try:
                 return self.theme_manager.get_color(key)
-            except:
+            except Exception:
                 pass  # Fall through to defaults
 
         return self._colors.get(key, default)
@@ -222,7 +220,7 @@ class ColorConfig:
         """
         self.theme_manager = theme_manager
 
-    def get_all(self) -> Dict[str, str]:
+    def get_all(self) -> dict[str, str]:
         """Get all colors as dictionary.
 
         Returns:

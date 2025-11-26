@@ -5,8 +5,8 @@ Tests theme loading, switching, and color retrieval.
 """
 
 import unittest
-from unittest.mock import MagicMock, patch
-from ui.themes import ThemeManager, Theme, ThemeType, get_theme_neon_green, get_theme_synthwave
+
+from ui.themes import Theme, ThemeManager, ThemeType, get_theme_neon_green, get_theme_synthwave
 
 
 class TestTheme(unittest.TestCase):

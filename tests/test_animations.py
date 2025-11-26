@@ -5,21 +5,20 @@ Tests all animation classes and the animation manager.
 """
 
 import unittest
-from unittest.mock import MagicMock
+
 from ui.animations import (
-    Animator,
-    ColorGradient,
-    PulsingEffect,
-    GlitchEffect,
-    FadeTransition,
-    MatrixRain,
     AnimationManager,
+    ColorGradient,
+    FadeTransition,
+    GlitchEffect,
+    MatrixRain,
+    PulsingEffect,
     create_button_press_animation,
-    create_status_pulse,
-    create_logo_glitch,
     create_fade_in,
     create_fade_out,
+    create_logo_glitch,
     create_matrix_background,
+    create_status_pulse,
 )
 
 

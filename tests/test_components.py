@@ -5,11 +5,10 @@ Tests component rendering, state management, and event handling.
 """
 
 import unittest
-from unittest.mock import MagicMock, patch
-from typing import List as ListType
-from ui.components import Button, Modal, TextDisplay
-from ui.architecture import Rectangle, UIState, UIComponent
+from unittest.mock import MagicMock
 
+from ui.architecture import Rectangle, UIState
+from ui.components import Button, Modal, TextDisplay
 
 # ============================================================================
 # BUTTON TESTS

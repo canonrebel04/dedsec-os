@@ -21,9 +21,9 @@ Example:
     panel.add_child(button)
 """
 
-from typing import Callable, List as ListType, Optional, Dict, Any, Tuple
-from ui.architecture import UIComponent, Rectangle, UIState
-import logging
+from typing import Any, Callable, Optional
+
+from ui.architecture import Rectangle, UIComponent, UIState
 
 
 class Button(UIComponent):

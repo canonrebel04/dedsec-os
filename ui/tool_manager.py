@@ -52,13 +52,12 @@ Usage:
 
 import enum
 import inspect
-from typing import Dict, List, Optional, Callable, Any, Set
 from dataclasses import dataclass, field
-from pathlib import Path
+from typing import Any, Callable, Optional
 
 # Import logging
 try:
-    from core.logging import get_logger, log_error, audit_log, error_boundary
+    from core.logging import audit_log, error_boundary, get_logger, log_error
 
     logger = get_logger(__name__)
 except ImportError:
@@ -126,7 +125,7 @@ class ToolMetadata:
     callback: Callable[[], Any]
     requires_root: bool = False
     requires_network: bool = False
-    requires_dependencies: List[str] = field(default_factory=list)
+    requires_dependencies: list[str] = field(default_factory=list)
     version: str = "1.0.0"
     author: str = "DedSec Team"
     enabled: bool = True
@@ -164,7 +163,7 @@ class ToolExecutionContext:
     error: Optional[str] = None
     start_time: float = 0.0
     end_time: float = 0.0
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 class ToolManager:
@@ -188,13 +187,13 @@ class ToolManager:
         if ToolManager._instance is not None:
             raise RuntimeError("ToolManager is a singleton. Use get_instance()")
 
-        self._registry: Dict[str, ToolMetadata] = {}
-        self._category_index: Dict[ToolCategory, List[str]] = {
+        self._registry: dict[str, ToolMetadata] = {}
+        self._category_index: dict[ToolCategory, list[str]] = {
             category: [] for category in ToolCategory
         }
-        self._active_tools: Set[str] = set()
-        self._execution_contexts: Dict[str, ToolExecutionContext] = {}
-        self._lazy_loaders: Dict[str, Callable[[], ToolMetadata]] = {}
+        self._active_tools: set[str] = set()
+        self._execution_contexts: dict[str, ToolExecutionContext] = {}
+        self._lazy_loaders: dict[str, Callable[[], ToolMetadata]] = {}
 
         logger.info("ToolManager initialized")
 
@@ -360,7 +359,7 @@ class ToolManager:
                 self.register_tool(tool)
                 del self._lazy_loaders[tool_id]  # Remove loader after loading
                 return tool
-            except Exception as e:
+            except Exception:
                 log_error(
                     f"Failed to load lazy tool {tool_id}",
                     exc_info=True,
@@ -370,7 +369,7 @@ class ToolManager:
 
         return None
 
-    def get_all_tools(self) -> List[ToolMetadata]:
+    def get_all_tools(self) -> list[ToolMetadata]:
         """
         Get all registered tools.
 
@@ -388,7 +387,7 @@ class ToolManager:
 
         return list(self._registry.values())
 
-    def get_tools_by_category(self, category: ToolCategory) -> List[ToolMetadata]:
+    def get_tools_by_category(self, category: ToolCategory) -> list[ToolMetadata]:
         """
         Get all tools in a specific category.
 
@@ -411,7 +410,7 @@ class ToolManager:
 
         return tools
 
-    def get_enabled_tools(self) -> List[ToolMetadata]:
+    def get_enabled_tools(self) -> list[ToolMetadata]:
         """
         Get all enabled tools.
 
@@ -420,7 +419,7 @@ class ToolManager:
         """
         return [tool for tool in self.get_all_tools() if tool.enabled]
 
-    def get_categories(self) -> List[ToolCategory]:
+    def get_categories(self) -> list[ToolCategory]:
         """
         Get all categories that have registered tools.
 
@@ -572,7 +571,7 @@ class ToolManager:
         logger.info(f"Disabled tool: {tool_id}")
         return True
 
-    def _check_dependencies(self, dependencies: List[str]) -> List[str]:
+    def _check_dependencies(self, dependencies: list[str]) -> list[str]:
         """
         Check if system has required dependencies.
 
@@ -591,7 +590,7 @@ class ToolManager:
 
         return missing
 
-    def get_statistics(self) -> Dict[str, Any]:
+    def get_statistics(self) -> dict[str, Any]:
         """
         Get tool manager statistics.
 

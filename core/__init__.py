@@ -11,14 +11,14 @@ Example:
 """
 
 from core.logging import (
-    setup_logging,
+    PerformanceMonitor,
+    audit_log,
+    error_boundary,
     get_logger,
     log_error,
-    audit_log,
     log_performance,
-    error_boundary,
-    PerformanceMonitor,
     performance_monitor,
+    setup_logging,
 )
 
 __version__ = "3.2.0"

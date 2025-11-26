@@ -20,11 +20,11 @@ Usage:
     overlay.draw()
 """
 
-import time
-import psutil
 import os
-from typing import List, Dict, Optional, Tuple
+import time
 from collections import deque
+
+import psutil
 
 
 class FPSCounter:
@@ -176,7 +176,7 @@ class TouchLogger:
         )
         self.event_count += 1
 
-    def get_recent_events(self, count: int = 5) -> List[Dict]:
+    def get_recent_events(self, count: int = 5) -> list[dict]:
         """
         Get most recent events.
 
@@ -223,7 +223,7 @@ class FrameTimer:
             self.min_frame_time = min(self.min_frame_time, frame_duration)
             self.max_frame_time = max(self.max_frame_time, frame_duration)
 
-    def get_stats(self) -> Dict[str, float]:
+    def get_stats(self) -> dict[str, float]:
         """
         Get frame timing statistics.
 
@@ -240,7 +240,7 @@ class FrameTimer:
             "avg": avg * 1000,
         }
 
-    def get_history(self) -> List[float]:
+    def get_history(self) -> list[float]:
         """Get frame time history in milliseconds."""
         return [t * 1000 for t in self.history]
 
@@ -287,7 +287,7 @@ class DiagnosticsOverlay:
         self.frame_timer = FrameTimer()
 
         # Canvas items for rendering
-        self.canvas_items: List[int] = []
+        self.canvas_items: list[int] = []
 
         # Display options
         self.show_fps = True
@@ -331,11 +331,11 @@ class DiagnosticsOverlay:
         for item_id in self.canvas_items:
             try:
                 self.canvas.delete(item_id)
-            except:
+            except Exception:
                 pass
         self.canvas_items.clear()
 
-    def _get_position_coords(self) -> Tuple[int, int]:
+    def _get_position_coords(self) -> tuple[int, int]:
         """Get x, y coordinates based on position setting."""
         if self.position == "top-left":
             return (5, 5)

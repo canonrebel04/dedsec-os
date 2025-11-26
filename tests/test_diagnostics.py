@@ -4,18 +4,19 @@ Unit tests for Diagnostics Overlay
 Tests FPS counter, memory tracking, CPU monitoring, and touch logging.
 """
 
+import time
 import unittest
 from unittest.mock import MagicMock, patch
+
 from ui.diagnostics import (
+    CPUMonitor,
     DiagnosticsOverlay,
     FPSCounter,
-    MemoryTracker,
-    CPUMonitor,
-    TouchLogger,
     FrameTimer,
+    MemoryTracker,
+    TouchLogger,
     create_diagnostics_overlay,
 )
-import time
 
 
 class TestFPSCounter(unittest.TestCase):

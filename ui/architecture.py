@@ -24,11 +24,11 @@ Usage:
             pass
 """
 
+import logging
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Tuple, Optional, Callable
 from dataclasses import dataclass, field
 from enum import Enum
-import logging
+from typing import Any, Callable, Optional
 
 # ============================================================================
 # TYPE DEFINITIONS
@@ -96,7 +96,7 @@ class Model(ABC):
     def __init__(self, name: str):
         """Initialize model with a name."""
         self.name = name
-        self.observers: List["Observer"] = []
+        self.observers: list[Observer] = []
         self.is_running = False
         self.error_state = None
         self.logger = logging.getLogger(f"Model:{name}")
@@ -200,7 +200,7 @@ class View(ABC):
         self.is_visible = False
         self.logger.debug(f"View '{self.name}' hidden")
 
-    def get_color_for_state(self, state_colors: Dict[UIState, str]) -> str:
+    def get_color_for_state(self, state_colors: dict[UIState, str]) -> str:
         """Get color based on current state."""
         return state_colors.get(self.state, state_colors.get(UIState.NORMAL, "#ffffff"))
 
@@ -246,7 +246,7 @@ class Controller(ABC):
         """Handle touch input. Implement in subclasses."""
         pass
 
-    def on_command(self, command: str, args: Optional[Dict[str, Any]] = None) -> None:
+    def on_command(self, command: str, args: Optional[dict[str, Any]] = None) -> None:
         """
         Handle command from UI or external source.
 
@@ -267,7 +267,7 @@ class Controller(ABC):
         Args:
             dt: Delta time since last frame (seconds)
         """
-        pass
+        _ = dt  # Default implementation - override in subclasses
 
 
 # ============================================================================
@@ -292,8 +292,8 @@ class UIComponent(ABC):
         """Initialize component."""
         self.name = name
         self.rect = rect
-        self.children: List["UIComponent"] = []
-        self.parent: Optional["UIComponent"] = None
+        self.children: list[UIComponent] = []
+        self.parent: Optional[UIComponent] = None
         self.state: UIState = UIState.NORMAL
         self.is_visible = True
         self.is_enabled = True
@@ -391,7 +391,7 @@ class Event:
 
     type: str
     timestamp: float
-    data: Dict[str, Any] = field(default_factory=dict)
+    data: dict[str, Any] = field(default_factory=dict)
 
 
 class EventBus:
@@ -413,7 +413,7 @@ class EventBus:
 
     def __init__(self):
         """Initialize event bus."""
-        self.subscribers: Dict[str, List[Callable]] = {}
+        self.subscribers: dict[str, list[Callable]] = {}
         self.logger = logging.getLogger("EventBus")
 
     def subscribe(self, event_type: str, callback: Callable) -> None:
@@ -464,9 +464,9 @@ class Application:
         """Initialize application."""
         self.name = name
         self.canvas = canvas
-        self.models: Dict[str, Model] = {}
-        self.views: Dict[str, View] = {}
-        self.controllers: Dict[str, Controller] = {}
+        self.models: dict[str, Model] = {}
+        self.views: dict[str, View] = {}
+        self.controllers: dict[str, Controller] = {}
         self.event_bus = EventBus()
         self.logger = logging.getLogger(f"App:{name}")
         self.is_running = False
@@ -503,7 +503,7 @@ class Application:
 
     def get_tool(
         self, tool_name: str
-    ) -> Tuple[Optional[Model], Optional[View], Optional[Controller]]:
+    ) -> tuple[Optional[Model], Optional[View], Optional[Controller]]:
         """Get MVC components for a tool."""
         return (
             self.models.get(tool_name),

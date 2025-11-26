@@ -42,15 +42,15 @@ Integration with Architecture:
     - StateContainer: Notifies renderer of state changes triggering redraws
 """
 
-from typing import Optional, Dict, List, Tuple, Any, Callable
+import logging
+import tkinter as tk
 from dataclasses import dataclass
 from enum import Enum
-import tkinter as tk
-import logging
+from typing import Any, Callable, Optional
 
 # Import configuration and theme systems
 try:
-    from config import LAYOUT, COLORS, TIMINGS, DEBUG  # type: ignore[attr-defined]
+    from config import COLORS, DEBUG, LAYOUT, TIMINGS  # type: ignore[attr-defined]
 except ImportError:
     # Provide default fallbacks if config not available
     LAYOUT = type("LAYOUT", (), {"SCREEN_WIDTH": 320, "SCREEN_HEIGHT": 240})()
@@ -58,7 +58,6 @@ except ImportError:
     TIMINGS = type("TIMINGS", (), {"FRAME_RATE": 30})()
     DEBUG = type("DEBUG", (), {"ENABLE_DEBUG_LOGGING": False})()
 from ui.themes import ThemeManager
-from ui.components import Button, Modal, TextDisplay, Gauge
 
 logger = logging.getLogger(__name__)
 
@@ -308,7 +307,7 @@ class ScreenRenderer:
         except Exception as e:
             logger.error(f"Header render error: {e}")
 
-    def draw_sidebar(self, buttons: List[Dict[str, Any]]) -> None:
+    def draw_sidebar(self, buttons: list[dict[str, Any]]) -> None:
         """
         Render left sidebar with vertical button menu.
 
@@ -386,7 +385,7 @@ class ScreenRenderer:
 
     def draw_terminal(
         self,
-        log_lines: List[str],
+        log_lines: list[str],
         scroll_offset: int = 0,
         line_height: int = 12,
         pool: Optional[Any] = None,
@@ -601,7 +600,7 @@ class ScreenRenderer:
         title: str,
         content_text: str,
         modal_type: str = "info",
-        buttons: Optional[List[Tuple[str, Callable]]] = None,
+        buttons: Optional[list[tuple[str, Callable]]] = None,
     ) -> None:
         """
         Render modal dialog box.
@@ -711,7 +710,7 @@ class ScreenRenderer:
                 button_y = modal_y + modal_height - 20
                 button_width = (modal_width - 10) // len(buttons)
 
-                for idx, (label, callback) in enumerate(buttons):
+                for idx, (label, _callback) in enumerate(buttons):
                     btn_x = modal_x + 5 + (idx * button_width)
                     btn_item = self.canvas.create_rectangle(
                         btn_x,
@@ -782,7 +781,7 @@ class ScreenRenderer:
         """
         try:
             for layer in LayerZ:
-                for item_id in self.layer_objects[layer]:
+                for _item_id in self.layer_objects[layer]:
                     self.canvas.tag_raise(f"layer_{layer.name}")
         except Exception as e:
             logger.error(f"Z-order update error: {e}")
