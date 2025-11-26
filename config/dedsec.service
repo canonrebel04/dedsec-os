@@ -1,0 +1,17 @@
+[Unit]
+Description=DedSec Cyberdeck UI
+After=graphical-session-pre.target
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+Environment="DISPLAY=:0"
+Environment="XAUTHORITY=/home/berry/.Xauthority"
+ExecStart=/usr/bin/python3 /home/berry/dedsec/app.py
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=graphical-session.target
